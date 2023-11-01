@@ -9,11 +9,7 @@ const PairingDescription = (): ReactElement => {
   return (
     <>
       <Typography variant="caption" align="center">
-        Scan this code in the {'Safe{Wallet}'} mobile app to sign transactions with your mobile device.
-        <br />
-        <ExternalLink href={HelpCenterArticle.MOBILE_SAFE} title="Learn more about mobile pairing.">
-          Learn more about this feature.
-        </ExternalLink>
+Not supported
       </Typography>
 
       <AppStoreButton placement="pairing" />

@@ -24,7 +24,7 @@ const History: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Safe{Wallet} – Transaction history'}</title>
+        <title>{'Shyft Safe – Transaction history'}</title>
       </Head>
 
       <TxHeader>

@@ -14,7 +14,7 @@ type WcHeaderWidgetProps = {
   onClose: () => void
 }
 
-const TOOLTIP_TEXT = 'Connect Safe{Wallet} to any dApp with WalletConnect'
+const TOOLTIP_TEXT = 'Connect Shyft Safe to any dApp with WalletConnect'
 const TOOLTIP_ID = 'native_wc_onboarding'
 
 const WcHeaderWidget = ({ sessions, ...props }: WcHeaderWidgetProps) => {

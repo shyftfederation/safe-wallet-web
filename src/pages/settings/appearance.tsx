@@ -43,7 +43,7 @@ const Appearance: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Safe{Wallet} – Settings – Appearance'}</title>
+        <title>{'Shyft Safe – Settings – Appearance'}</title>
       </Head>
 
       <SettingsHeader />
