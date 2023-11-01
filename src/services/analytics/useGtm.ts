@@ -12,6 +12,8 @@ import {
   gtmEnableCookies,
   gtmDisableCookies,
   gtmSetDeviceType,
+  gtmSetSafeAddress,
+  gtmSetUserProperty,
 } from '@/services/analytics/gtm'
 import { useAppSelector } from '@/store'
 import { CookieType, selectCookies } from '@/store/cookiesSlice'
@@ -20,7 +22,9 @@ import { useRouter } from 'next/router'
 import { AppRoutes } from '@/config/routes'
 import useMetaEvents from './useMetaEvents'
 import { useMediaQuery } from '@mui/material'
-import { DeviceType } from './types'
+import { AnalyticsUserProperties, DeviceType } from './types'
+import useSafeAddress from '@/hooks/useSafeAddress'
+import useWallet from '@/hooks/wallets/useWallet'
 
 const useGtm = () => {
   const chainId = useChainId()
@@ -32,6 +36,8 @@ const useGtm = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const isTablet = useMediaQuery(theme.breakpoints.down('md'))
   const deviceType = isMobile ? DeviceType.MOBILE : isTablet ? DeviceType.TABLET : DeviceType.DESKTOP
+  const safeAddress = useSafeAddress()
+  const walletLabel = useWallet()?.label
 
   // Initialize GTM
   useEffect(() => {
@@ -63,14 +69,24 @@ const useGtm = () => {
     gtmSetDeviceType(deviceType)
   }, [deviceType])
 
-  // Track page views – anononimized by default.
-  // Sensitive info, like the safe address or tx id, is always in the query string, which we DO NOT track.
+  // Set safe address for all GTM events
+  useEffect(() => {
+    gtmSetSafeAddress(safeAddress)
+  }, [safeAddress])
+
+  // Track page views – anonymized by default.
   useEffect(() => {
     // Don't track 404 because it's not a real page, it immediately does a client-side redirect
     if (router.pathname === AppRoutes['404']) return
 
     gtmTrackPageview(router.pathname)
   }, [router.pathname])
+
+  useEffect(() => {
+    if (walletLabel) {
+      gtmSetUserProperty(AnalyticsUserProperties.WALLET_LABEL, walletLabel)
+    }
+  }, [walletLabel])
 
   // Track meta events on app load
   useMetaEvents()

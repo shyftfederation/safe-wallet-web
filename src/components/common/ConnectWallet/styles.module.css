@@ -1,6 +1,5 @@
-.connectedContainer {
-  display: flex;
-  align-items: center;
+.container {
+  padding: 0 var(--space-2);
 }
 
 .buttonContainer {
@@ -45,22 +44,4 @@
 
 .row:last-of-type {
   border-bottom: 1px solid var(--color-border-light);
-}
-
-.pairingDetails {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-@media (max-width: 599.95px) {
-  .buttonContainer {
-    transform: scale(0.8);
-  }
-
-  .notConnected,
-  .pairingDetails {
-    display: none;
-  }
 }

@@ -3,7 +3,7 @@ import { Box, Button, CardActions, Divider } from '@mui/material'
 import classNames from 'classnames'
 
 import ErrorMessage from '@/components/tx/ErrorMessage'
-import { logError, Errors } from '@/services/exceptions'
+import { trackError, Errors } from '@/services/exceptions'
 import { useCurrentChain } from '@/hooks/useChains'
 import { getTxOptions } from '@/utils/transactions'
 import useIsValidExecution from '@/hooks/useIsValidExecution'
@@ -26,8 +26,6 @@ import commonCss from '@/components/tx-flow/common/styles.module.css'
 import { TxSecurityContext } from '../security/shared/TxSecurityContext'
 import useIsSafeOwner from '@/hooks/useIsSafeOwner'
 import NonOwnerError from '@/components/tx/SignOrExecuteForm/NonOwnerError'
-import { useAppSelector } from '@/store'
-import { selectQueuedTransactionById } from '@/store/txQueueSlice'
 
 const ExecuteForm = ({
   safeTx,
@@ -51,8 +49,6 @@ const ExecuteForm = ({
   const [relays] = useRelaysBySafe()
   const { setTxFlow } = useContext(TxModalContext)
   const { needsRiskConfirmation, isRiskConfirmed, setIsRiskIgnored } = useContext(TxSecurityContext)
-
-  const tx = useAppSelector((state) => selectQueuedTransactionById(state, txId))
 
   // Check that the transaction is executable
   const isExecutionLoop = useIsExecutionLoop()
@@ -88,18 +84,20 @@ const ExecuteForm = ({
 
     const txOptions = getTxOptions(advancedParams, currentChain)
 
+    let executedTxId: string
     try {
-      const executedTxId = await executeTx(txOptions, safeTx, txId, origin, willRelay, tx)
-      setTxFlow(<SuccessScreen txId={executedTxId} />, undefined, false)
+      executedTxId = await executeTx(txOptions, safeTx, txId, origin, willRelay)
     } catch (_err) {
       const err = asError(_err)
-      logError(Errors._804, err)
+      trackError(Errors._804, err)
       setIsSubmittable(true)
       setSubmitError(err)
       return
     }
 
-    onSubmit()
+    // On success
+    setTxFlow(<SuccessScreen txId={executedTxId} />, undefined, false)
+    onSubmit(executedTxId)
   }
 
   const cannotPropose = !isOwner && !onlyExecute

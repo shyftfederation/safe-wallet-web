@@ -1,14 +1,21 @@
 import path from 'path'
 import withBundleAnalyzer from '@next/bundle-analyzer'
-import NextPwa from 'next-pwa'
+import withPWAInit from '@ducanh2912/next-pwa'
 
-const withPWA = NextPwa({
-  disable: process.env.NODE_ENV === 'development',
+const SERVICE_WORKERS_PATH = './src/service-workers'
+
+const withPWA = withPWAInit({
   dest: 'public',
+  workboxOptions: {
+    mode: 'production',
+  },
   reloadOnOnline: false,
   /* Do not precache anything */
   publicExcludes: ['**/*'],
   buildExcludes: [/./],
+  customWorkerSrc: SERVICE_WORKERS_PATH,
+  // Prefer InjectManifest for Web Push
+  swSrc: `${SERVICE_WORKERS_PATH}/index.ts`,
 })
 
 /** @type {import('next').NextConfig} */
@@ -24,19 +31,8 @@ const nextConfig = {
   eslint: {
     dirs: ['src'],
   },
-  modularizeImports: {
-    '@mui/material': {
-      transform: '@mui/material/{{member}}',
-    },
-    '@mui/icons-material/?(((\\w*)?/?)*)': {
-      transform: '@mui/icons-material/{{ matches.[1] }}/{{member}}',
-    },
-    lodash: {
-      transform: 'lodash/{{member}}',
-    },
-    'date-fns': {
-      transform: 'date-fns/{{member}}',
-    },
+  experimental: {
+    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lodash', 'date-fns']
   },
   webpack(config) {
     config.module.rules.push({

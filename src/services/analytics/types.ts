@@ -15,6 +15,7 @@ export type AnalyticsEvent = {
   category: string
   action: string
   label?: EventLabel
+  chainId?: string
 }
 
 export type SafeAppSDKEvent = {
@@ -27,4 +28,8 @@ export enum DeviceType {
   DESKTOP = 'desktop',
   MOBILE = 'mobile',
   TABLET = 'tablet',
+}
+
+export enum AnalyticsUserProperties {
+  WALLET_LABEL = 'walletLabel',
 }
