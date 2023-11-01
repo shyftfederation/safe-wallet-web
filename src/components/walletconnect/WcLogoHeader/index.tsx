@@ -13,7 +13,7 @@ const WcLogoHeader = ({ error }: { error?: boolean }): ReactElement => {
       </div>
 
       <Typography variant="h5" mt={2} mb={0.5}>
-        Connect dApps to {`Shyft Safe`}
+        Connect dApps to {`Safe{Wallet}`}
       </Typography>
     </>
   )

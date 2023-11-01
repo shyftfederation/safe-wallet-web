@@ -16,7 +16,7 @@ const NotificationsPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Shyft Safe – Settings – Notifications'}</title>
+        <title>{'Safe{Wallet} – Settings – Notifications'}</title>
       </Head>
 
       <SettingsHeader />

@@ -8,7 +8,7 @@ const Cookies: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Shyft Safe – Settings – Cookies'}</title>
+        <title>{'Safe{Wallet} – Settings – Cookies'}</title>
       </Head>
 
       <SettingsHeader />

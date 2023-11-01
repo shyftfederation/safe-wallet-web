@@ -9,7 +9,7 @@ const SafeAppsPermissionsPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Shyft Safe – Settings – Safe Apps'}</title>
+        <title>{'Safe{Wallet} – Settings – Safe Apps'}</title>
       </Head>
 
       <SettingsHeader />

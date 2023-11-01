@@ -17,7 +17,7 @@ const Settings: NextPage = () => {
   return (
     <>
       <Head>
-        <title>{'Shyft Safe – Settings'}</title>
+        <title>{'Safe{Wallet} – Settings'}</title>
       </Head>
     </>
   )

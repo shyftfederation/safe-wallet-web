@@ -21,7 +21,7 @@ const Relaying = () => {
   return (
     <WidgetContainer>
       <Typography component="h2" variant="subtitle1" fontWeight={700} mb={2}>
-        New in {'Shyft Safe'}
+        New in {'Safe{Wallet}'}
       </Typography>
 
       <WidgetBody>

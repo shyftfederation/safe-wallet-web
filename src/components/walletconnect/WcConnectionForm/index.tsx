@@ -54,7 +54,7 @@ export const WcConnectionForm = ({
 
         <Typography variant="body2" color="text.secondary">
           {safeLoaded
-            ? `Paste the pairing code below to connect to your Shyft Safe via WalletConnect`
+            ? `Paste the pairing code below to connect to your Safe{Wallet} via WalletConnect`
             : `Please open one of your Safe Accounts to connect to via WalletConnect`}
         </Typography>
 
