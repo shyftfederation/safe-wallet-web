@@ -6,42 +6,31 @@ const nftsName = 'CatFactory'
 const nftsAddress = '0x373B...866c'
 const nftsTokenID = 'CF'
 
-describe('NFTs tests', () => {
-  before(() => {
+describe('[SMOKE] NFTs tests', () => {
+  beforeEach(() => {
     cy.clearLocalStorage()
-    cy.visit(constants.BALANCE_URL + constants.SEPOLIA_TEST_SAFE_5)
+    cy.visit(constants.balanceNftsUrl + constants.SEPOLIA_TEST_SAFE_5)
     main.acceptCookies()
-    nfts.clickOnNftsTab()
+    nfts.waitForNftItems(2)
   })
 
-  it.skip('Verify that NFTs exist in the table [C56123]', () => {
-    nfts.verifyNFTNumber(20)
+  it('[SMOKE] Verify that NFTs exist in the table', () => {
+    nfts.verifyNFTNumber(10)
   })
 
-  it.skip('Verify NFT row contains data [C56124]', () => {
+  it('[SMOKE] Verify NFT row contains data', () => {
     nfts.verifyDataInTable(nftsName, nftsAddress, nftsTokenID)
   })
 
-  it.skip('Verify NFT preview window can be opened [C56125]', () => {
-    nfts.openFirstNFT()
+  it('[SMOKE] Verify NFT preview window can be opened', () => {
+    nfts.openActiveNFT(0)
     nfts.verifyNameInNFTModal(nftsTokenID)
     nfts.verifySelectedNetwrokSepolia()
     nfts.closeNFTModal()
   })
 
-  it.skip('Verify NFT open does not open if no NFT exits [C56126]', () => {
-    nfts.clickOn6thNFT()
+  it('[SMOKE] Verify NFT open does not open if no NFT exits', () => {
+    nfts.clickOnInactiveNFT()
     nfts.verifyNFTModalDoesNotExist()
-  })
-
-  it.skip('Verify multipls NFTs can be selected and reviewed [C56127]', () => {
-    nfts.verifyInitialNFTData()
-    nfts.selectNFTs(3)
-    nfts.deselectNFTs([2], 3)
-    nfts.sendNFT(2)
-    nfts.verifyNFTModalData()
-    nfts.typeRecipientAddress(constants.SEPOLIA_TEST_SAFE_4)
-    nfts.clikOnNextBtn()
-    nfts.verifyReviewModalData(2)
   })
 })

@@ -5,49 +5,44 @@ import * as safeapps from '../pages/safeapps.pages'
 const myCustomAppTitle = 'Cypress Test App'
 const myCustomAppDescrAdded = 'Cypress Test App Description'
 
-describe('Safe Apps tests', () => {
+describe('Safe Apps list tests', () => {
   beforeEach(() => {
     cy.clearLocalStorage()
     cy.visit(constants.SEPOLIA_TEST_SAFE_4 + constants.appsUrl, { failOnStatusCode: false })
     main.acceptCookies()
   })
 
-  it('Verify app list can be filtered by app name [C56130]', () => {
+  it('Verify app list can be filtered by app name', () => {
     // Wait for /safe-apps response
     cy.intercept('GET', constants.appsEndpoint).then(() => {
       safeapps.typeAppName(constants.appNames.walletConnect)
-      safeapps.verifyLinkName(safeapps.linkNames.logo)
+      safeapps.verifyLinkName(safeapps.linkNames.wcLogo)
     })
   })
 
-  it('Verify app list can be filtered by app description [C56131]', () => {
+  it('Verify app list can be filtered by app description', () => {
     safeapps.typeAppName(constants.appNames.customContract)
-    safeapps.verifyLinkName(safeapps.linkNames.logo)
+    safeapps.verifyLinkName(safeapps.linkNames.txBuilderLogo)
   })
 
-  it('Verify error message is displayed when no app found [C56132]', () => {
+  it('Verify error message is displayed when no app found', () => {
     safeapps.typeAppName(constants.appNames.noResults)
     safeapps.verifyNoAppsTextPresent()
   })
 
-  it('Verify apps can be pinned [C56133]', () => {
+  it('Verify apps can be pinned', () => {
     safeapps.clearSearchAppInput()
-    safeapps.pinApp(safeapps.pinWalletConnectStr)
     safeapps.pinApp(safeapps.transactionBuilderStr)
-    safeapps.clickOnBookmarkedAppsTab()
-    safeapps.verifyAppCount(2)
+    safeapps.verifyPinnedAppCount(1)
   })
 
-  it('Verify apps can be unpinned [C56134]', () => {
-    safeapps.pinApp(safeapps.pinWalletConnectStr)
+  it('Verify apps can be unpinned', () => {
     safeapps.pinApp(safeapps.transactionBuilderStr)
-    safeapps.pinApp(safeapps.pinWalletConnectStr, false)
     safeapps.pinApp(safeapps.transactionBuilderStr, false)
-    safeapps.clickOnBookmarkedAppsTab()
-    safeapps.verifyAppCount(0)
+    safeapps.verifyPinnedAppCount(0)
   })
 
-  it('Verify there is an error when the app manifest is invalid [C56135]', () => {
+  it('Verify there is an error when the app manifest is invalid', () => {
     cy.intercept('GET', constants.invalidAppUrl, {
       name: constants.testAppData.name,
     })
@@ -57,7 +52,7 @@ describe('Safe Apps tests', () => {
     safeapps.verifyAppNotSupportedMsg()
   })
 
-  it('Verify an app can be added to the list within the custom apps section [C56136]', () => {
+  it('Verify an app can be added to the list within the custom apps section', () => {
     cy.intercept('GET', constants.validAppUrlJson, {
       name: constants.testAppData.name,
       description: constants.testAppData.descr,
@@ -70,7 +65,7 @@ describe('Safe Apps tests', () => {
     safeapps.verifyAppTitle(myCustomAppTitle)
     safeapps.acceptTC()
     safeapps.clickOnAddBtn()
-    safeapps.verifyAppCount(1)
+    safeapps.verifyCustomAppCount(1)
     safeapps.verifyAppDescription(myCustomAppDescrAdded)
   })
 })

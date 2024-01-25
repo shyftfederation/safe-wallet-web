@@ -6,27 +6,16 @@ import * as createwallet from '../pages/create_wallet.pages'
 
 const testSafeName = 'Test safe name'
 const testOwnerName = 'Test Owner Name'
-// TODO
-const SAFE_ENS_NAME = 'test20.eth'
-const SAFE_ENS_NAME_TRANSLATED = constants.EOA
 
-const EOA_ADDRESS = constants.EOA
-
-const INVALID_ADDRESS_ERROR_MSG = 'Address given is not a valid Safe address'
-
-// TODO
-const OWNER_ENS_DEFAULT_NAME = 'test20.eth'
-const OWNER_ADDRESS = constants.EOA
-
-describe('Load Safe tests', () => {
-  before(() => {
+describe('[SMOKE] Load Safe tests', () => {
+  beforeEach(() => {
     cy.clearLocalStorage()
     cy.visit(constants.loadNewSafeSepoliaUrl)
     main.acceptCookies()
     cy.wait(2000)
   })
 
-  it('Verify a network can be selected in the Safe [C56117]', () => {
+  it('[SMOKE] Verify a network can be selected in the Safe', () => {
     safe.clickNetworkSelector(constants.networks.sepolia)
     safe.selectPolygon()
     cy.wait(2000)
@@ -34,48 +23,52 @@ describe('Load Safe tests', () => {
     safe.selectSepolia()
   })
 
-  it('Verify only valid Safe name can be accepted [C56118]', () => {
+  it('[SMOKE] Verify only valid Safe name can be accepted', () => {
     // alias the address input label
     cy.get('input[name="address"]').parent().prev('label').as('addressLabel')
 
     createwallet.verifyDefaultWalletName(createwallet.defaltSepoliaPlaceholder)
-
-    safe.inputName(testSafeName)
     safe.verifyIncorrectAddressErrorMessage()
-    safe.inputAddress(constants.SEPOLIA_TEST_SAFE_1)
+    safe.inputNameAndAddress(testSafeName, constants.SEPOLIA_TEST_SAFE_1)
 
-    // Type an invalid address
-    // cy.get('input[name="address"]').clear().type(EOA_ADDRESS)
-    // cy.get('@addressLabel').contains(INVALID_ADDRESS_ERROR_MSG)
-
-    // Type a ENS name
-    // TODO: register a goerli ENS name for the test Safe
-    // cy.get('input[name="address"]').clear().type(SAFE_ENS_NAME)
-    // giving time to the ENS name to be translated
-    // cy.get('input[name="address"]', { timeout: 10000 }).should('have.value', `rin:${SAFE_ENS_NAME_TRANSLATED}`)
-
-    // Uploading a QR code
-    // TODO: fix this
-    // cy.findByTestId('QrCodeIcon').click()
-    // cy.contains('Upload an image').click()
-    // cy.get('[type="file"]').attachFile('../fixtures/goerli_safe_QR.png')
-
-    safe.verifyAddressInputValue()
+    safe.verifyAddressInputValue(constants.SEPOLIA_TEST_SAFE_1)
+    safe.verifyNextButtonStatus('be.enabled')
     safe.clickOnNextBtn()
   })
 
-  it('Verify custom name in the first owner an be set [C56120]', () => {
+  it('[SMOKE] Verify names cannot have more than 50 characters', () => {
+    safe.inputName(main.generateRandomString(51))
+    safe.verifyNameLengthErrorMessage()
+  })
+
+  it('[SMOKE] Verify ENS name is translated to a valid address', () => {
+    // cy.visit(constants.loadNewSafeEthUrl)
+    safe.inputAddress(constants.ENS_TEST_SEPOLIA)
+    safe.verifyAddressInputValue(constants.SEPOLIA_TEST_SAFE_7)
+    safe.verifyNextButtonStatus('be.enabled')
+    safe.clickOnNextBtn()
+  })
+
+  it('[SMOKE] Verify a valid QR code is accepted', () => {
+    safe.scanQRCode(constants.VALID_QR_CODE_PATH)
+    safe.verifyAddressInputValue(constants.SEPOLIA_TEST_SAFE_6)
+    safe.verifyNextButtonStatus('be.enabled')
+    safe.clickOnNextBtn()
+  })
+
+  it('[SMOKE] Verify a non QR code is not accepted', () => {
+    safe.scanQRCode(constants.INVALID_QR_CODE_PATH)
+    safe.verifyQRCodeErrorMsg()
+  })
+
+  it('[SMOKE] Verify the custom Safe name is successfully loaded', () => {
+    safe.inputNameAndAddress(testSafeName, constants.SEPOLIA_TEST_SAFE_2)
+    safe.clickOnNextBtn()
     createwallet.typeOwnerName(testOwnerName, 0)
     safe.clickOnNextBtn()
-  })
-
-  it('Verify Safe and owner names are displayed in the Review step [C56121]', () => {
     safe.verifyDataInReviewSection(testSafeName, testOwnerName)
     safe.clickOnAddBtn()
-  })
-
-  it('Verify the custom Safe name is successfully loaded [C56122]', () => {
-    main.verifyHomeSafeUrl(constants.SEPOLIA_TEST_SAFE_1)
+    main.verifyHomeSafeUrl(constants.SEPOLIA_TEST_SAFE_2)
     safe.veriySidebarSafeNameIsVisible(testSafeName)
     safe.verifyOwnerNamePresentInSettings(testOwnerName)
   })

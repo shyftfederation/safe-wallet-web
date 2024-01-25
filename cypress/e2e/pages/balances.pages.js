@@ -22,7 +22,7 @@ const hiddenTokenIcon = 'svg[data-testid="VisibilityOffOutlinedIcon"]'
 const hideTokenDefaultString = 'Hide tokens'
 const assetNameSortBtnStr = 'Asset'
 const assetBalanceSortBtnStr = 'Balance'
-const sendBtnStr = 'Send'
+export const sendBtnStr = 'Send'
 const sendTokensStr = 'Send tokens'
 
 const pageRowsDefault = '25'
@@ -44,7 +44,7 @@ export const tokenListOptions = {
 export const currencyEUR = 'EUR'
 export const currencyUSD = 'USD'
 
-export const currentcySepoliaFormat = '0.1 ETH'
+export const currentcySepoliaFormat = '0.09996 ETH'
 
 export const currencyAave = 'AAVE'
 export const currencyAaveAlttext = 'AAVE'

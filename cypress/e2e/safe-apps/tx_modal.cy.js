@@ -6,10 +6,8 @@ const testAppName = 'Cypress Test App'
 const testAppDescr = 'Cypress Test App Description'
 
 describe('Transaction modal tests', () => {
-  before(() => {
-    cy.clearLocalStorage()
-  })
   beforeEach(() => {
+    cy.clearLocalStorage()
     cy.fixture('safe-app').then((html) => {
       cy.intercept('GET', `${constants.testAppUrl}/*`, html)
       cy.intercept('GET', `*/manifest.json`, {
@@ -21,7 +19,7 @@ describe('Transaction modal tests', () => {
   })
 
   it(
-    'Verify that the transaction popup is displayed when sending a transaction from an app [C56152]',
+    'Verify that the transaction popup is displayed when sending a transaction from an app',
     { defaultCommandTimeout: 12000 },
     () => {
       cy.visitSafeApp(`${constants.testAppUrl}/dummy`)

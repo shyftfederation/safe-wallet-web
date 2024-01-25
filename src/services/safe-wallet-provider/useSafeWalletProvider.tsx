@@ -7,9 +7,9 @@ import type { AppInfo, WalletSDK } from '.'
 import { SafeWalletProvider } from '.'
 import useSafeInfo from '@/hooks/useSafeInfo'
 import { TxModalContext } from '@/components/tx-flow'
-import SignMessageFlow from '@/components/tx-flow/flows/SignMessage'
+import { SignMessageFlow } from '@/components/tx-flow/flows'
 import { safeMsgSubscribe, SafeMsgEvent } from '@/services/safe-messages/safeMsgEvents'
-import SafeAppsTxFlow from '@/components/tx-flow/flows/SafeAppsTx'
+import { SafeAppsTxFlow } from '@/components/tx-flow/flows'
 import { TxEvent, txSubscribe } from '@/services/tx/txEvents'
 import { Methods } from '@safe-global/safe-apps-sdk'
 import type { EIP712TypedData, SafeSettings } from '@safe-global/safe-apps-sdk'
@@ -19,17 +19,10 @@ import { getAddress } from 'ethers/lib/utils'
 import { AppRoutes } from '@/config/routes'
 import useChains, { useCurrentChain } from '@/hooks/useChains'
 import { NotificationMessages, showNotification } from './notifications'
-import { SafeAppsTag } from '@/config/constants'
-import { useRemoteSafeApps } from '@/hooks/safe-apps/useRemoteSafeApps'
-import SignMessageOnChainFlow from '@/components/tx-flow/flows/SignMessageOnChain'
+import { SignMessageOnChainFlow } from '@/components/tx-flow/flows'
 import { useAppSelector } from '@/store'
 import { selectOnChainSigning } from '@/store/settingsSlice'
 import { isOffchainEIP1271Supported } from '@/utils/safe-messages'
-
-const useWalletConnectApp = () => {
-  const [matchingApps] = useRemoteSafeApps(SafeAppsTag.WALLET_CONNECT)
-  return matchingApps?.[0]
-}
 
 export const _useTxFlowApi = (chainId: string, safeAddress: string): WalletSDK | undefined => {
   const { safe } = useSafeInfo()
@@ -39,7 +32,6 @@ export const _useTxFlowApi = (chainId: string, safeAddress: string): WalletSDK |
   const router = useRouter()
   const { configs } = useChains()
   const pendingTxs = useRef<Record<string, string>>({})
-  const wcApp = useWalletConnectApp()
 
   const onChainSigning = useAppSelector(selectOnChainSigning)
   const [settings, setSettings] = useState<SafeSettings>({
@@ -95,11 +87,17 @@ export const _useTxFlowApi = (chainId: string, safeAddress: string): WalletSDK |
 
         if (shouldSignOffChain) {
           setTxFlow(
-            <SignMessageFlow logoUri={appInfo.iconUrl} name={appInfo.name} message={message} requestId={id} />,
+            <SignMessageFlow
+              logoUri={appInfo.iconUrl}
+              name={appInfo.name}
+              message={message}
+              requestId={id}
+              safeAppId={appInfo.id}
+            />,
             onClose,
           )
         } else {
-          setTxFlow(<SignMessageOnChainFlow props={{ appId: wcApp?.id, requestId: id, message, method }} />, onClose)
+          setTxFlow(<SignMessageOnChainFlow props={{ requestId: id, message, method }} />, onClose)
         }
       })
     }
@@ -133,39 +131,24 @@ export const _useTxFlowApi = (chainId: string, safeAddress: string): WalletSDK |
               code: RpcErrorCode.USER_REJECTED,
               message: 'User rejected transaction',
             })
-            unsubscribe()
           }
 
-          const unsubscribeSignaturePrepared = txSubscribe(
-            TxEvent.SAFE_APPS_REQUEST,
-            async ({ safeAppRequestId, safeTxHash, txId }) => {
-              if (safeAppRequestId === id) {
-                const txHash = txId ? pendingTxs.current[txId] : undefined
-                resolve({ safeTxHash, txHash })
-                unsubscribe()
-              }
-            },
-          )
-
-          const unsubscribe = () => {
+          const onSubmit = (txId: string, safeTxHash: string) => {
+            const txHash = pendingTxs.current[txId]
             onClose = () => {}
-            unsubscribeSignaturePrepared()
+            resolve({ safeTxHash, txHash })
           }
 
           setTxFlow(
             <SafeAppsTxFlow
               data={{
                 appId: undefined,
-                app: {
-                  name: appInfo.name,
-                  // Show WC details in transaction list
-                  url: wcApp?.url ?? appInfo.url,
-                  iconUrl: appInfo.iconUrl,
-                },
+                app: appInfo,
                 requestId: id,
                 txs: transactions,
                 params: params.params,
               }}
+              onSubmit={onSubmit}
             />,
             onClose,
           )
@@ -215,20 +198,7 @@ export const _useTxFlowApi = (chainId: string, safeAddress: string): WalletSDK |
         return data.result
       },
     }
-  }, [
-    chainId,
-    safeAddress,
-    safe,
-    currentChain,
-    onChainSigning,
-    settings,
-    setTxFlow,
-    wcApp?.id,
-    wcApp?.url,
-    configs,
-    router,
-    web3ReadOnly,
-  ])
+  }, [chainId, safeAddress, safe, currentChain, onChainSigning, settings, setTxFlow, configs, router, web3ReadOnly])
 }
 
 const useSafeWalletProvider = (): SafeWalletProvider | undefined => {

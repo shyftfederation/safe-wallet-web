@@ -14,23 +14,22 @@ describe('Browser permissions tests', () => {
         safe_apps_permissions: ['camera', 'microphone'],
       })
     })
-  })
-
-  it('Verify a permissions slide to the user is displayed [C56137]', () => {
     cy.visitSafeApp(`${constants.testAppUrl}/app`)
     main.acceptCookies()
+  })
+
+  it('Verify a permissions slide to the user is displayed', () => {
     safeapps.clickOnContinueBtn()
     safeapps.verifyCameraCheckBoxExists()
     safeapps.verifyMicrofoneCheckBoxExists()
   })
 
-  it('Verify the selection can be changed, accepted and stored [C56138]', () => {
+  it('Verify the selection can be changed, accepted and stored', () => {
     safeapps.verifyMicrofoneCheckBoxExists().click()
     safeapps.clickOnContinueBtn()
     safeapps.verifyWarningDefaultAppMsgIsDisplayed()
     safeapps.verifyCameraCheckBoxExists()
-    safeapps.clickOnContinueBtn().should(() => {
-      expect(window.localStorage.getItem(constants.BROWSER_PERMISSIONS_KEY)).to.eq(safeapps.localStorageItem)
-    })
+    safeapps.clickOnContinueBtn()
+    safeapps.checkLocalStorage()
   })
 })

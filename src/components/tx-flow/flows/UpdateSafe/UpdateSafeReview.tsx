@@ -25,7 +25,7 @@ export const UpdateSafeReview = () => {
   }, [chain, safe, safeLoaded, setNonce, setSafeTx, setSafeTxError])
 
   return (
-    <SignOrExecuteForm onSubmit={() => null}>
+    <SignOrExecuteForm>
       <Typography mb={2}>
         Update now to take advantage of new features and the highest security standards available.
       </Typography>

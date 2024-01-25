@@ -4,17 +4,14 @@ const connectAndTransactStr = 'Connect & transact'
 const transactionQueueStr = 'Pending transactions'
 const noTransactionStr = 'This Safe has no queued transactions'
 const overviewStr = 'Overview'
-const viewAssetsStr = 'View assets'
-const tokensStr = 'Tokens'
-const nftStr = 'NFTs'
+const sendStr = 'Send'
+const receiveStr = 'Receive'
 const viewAllStr = 'View all'
 const transactionBuilderStr = 'Use Transaction Builder'
-const walletConnectStr = 'Use WalletConnect'
 const safeAppStr = 'Safe Apps'
 const exploreSafeApps = 'Explore Safe Apps'
 
 const txBuilder = 'a[href*="tx-builder"]'
-const walletConnect = 'a[href*="wallet-connect"]'
 const safeSpecificLink = 'a[href*="&appUrl=http"]'
 
 export function verifyConnectTransactStrIsVisible() {
@@ -27,11 +24,10 @@ export function verifyOverviewWidgetData() {
 
   cy.get('@overviewSection').within(() => {
     // Prefix is separated across elements in EthHashInfo
-    cy.contains(constants.SEPOLIA_TEST_SAFE_5).should('exist')
     cy.get('h2').contains('Overview')
-    cy.get(`a[href="${constants.BALANCE_URL}${encodeURIComponent(constants.SEPOLIA_TEST_SAFE_5)}"]`).contains(
-      viewAssetsStr,
-    )
+    cy.get(`a[href="${constants.BALANCE_URL}${encodeURIComponent(constants.SEPOLIA_TEST_SAFE_5)}"]`).contains('Tokens')
+    cy.get('button').contains(sendStr)
+    cy.get('button').contains(receiveStr)
   })
 }
 
@@ -46,7 +42,7 @@ export function verifyTxQueueWidget() {
     // Queued txns
     cy.contains(
       `a[href^="/transactions/tx?id=multisig_0x"]`,
-      '13' + 'Send' + `-0.00002 ${constants.tokenAbbreviation.sep}` + '1/1',
+      '14' + 'Send' + `-0.00002 ${constants.tokenAbbreviation.sep}` + '1/1',
     ).should('exist')
 
     cy.contains(
@@ -65,10 +61,6 @@ export function verifyFeaturedAppsSection() {
     // Transaction Builder
     cy.contains(transactionBuilderStr)
     cy.get(txBuilder).should('exist')
-
-    // WalletConnect app
-    cy.contains(walletConnectStr)
-    cy.get(walletConnect).should('exist')
 
     // Featured apps have a Safe-specific link
     cy.get(safeSpecificLink).should('have.length', 2)

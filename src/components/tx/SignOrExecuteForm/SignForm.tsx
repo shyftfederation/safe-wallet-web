@@ -1,5 +1,6 @@
+import madProps from '@/utils/mad-props'
 import { type ReactElement, type SyntheticEvent, useContext, useState } from 'react'
-import { Box, Button, CardActions, Divider } from '@mui/material'
+import { CircularProgress, Box, Button, CardActions, Divider } from '@mui/material'
 
 import ErrorMessage from '@/components/tx/ErrorMessage'
 import { trackError, Errors } from '@/services/exceptions'
@@ -15,7 +16,7 @@ import { TxSecurityContext } from '../security/shared/TxSecurityContext'
 import NonOwnerError from '@/components/tx/SignOrExecuteForm/NonOwnerError'
 import BatchButton from './BatchButton'
 
-const SignForm = ({
+export const SignForm = ({
   safeTx,
   txId,
   onSubmit,
@@ -24,7 +25,13 @@ const SignForm = ({
   isBatch,
   isBatchable,
   isCreation,
+  isOwner,
+  txActions,
+  txSecurity,
 }: SignOrExecuteProps & {
+  isOwner: ReturnType<typeof useIsSafeOwner>
+  txActions: ReturnType<typeof useTxActions>
+  txSecurity: ReturnType<typeof useTxSecurityContext>
   safeTx?: SafeTransaction
 }): ReactElement => {
   // Form state
@@ -32,10 +39,9 @@ const SignForm = ({
   const [submitError, setSubmitError] = useState<Error | undefined>()
 
   // Hooks
-  const isOwner = useIsSafeOwner()
-  const { signTx, addToBatch } = useTxActions()
+  const { signTx, addToBatch } = txActions
   const { setTxFlow } = useContext(TxModalContext)
-  const { needsRiskConfirmation, isRiskConfirmed, setIsRiskIgnored } = useContext(TxSecurityContext)
+  const { needsRiskConfirmation, isRiskConfirmed, setIsRiskIgnored } = txSecurity
   const hasSigned = useAlreadySigned(safeTx)
 
   // On modal submit
@@ -63,9 +69,12 @@ const SignForm = ({
       return
     }
 
-    // On success
+    // On successful sign
+    if (!isAddingToBatch) {
+      onSubmit?.(resultTxId)
+    }
+
     setTxFlow(undefined)
-    onSubmit(resultTxId)
   }
 
   const onBatchClick = (e: SyntheticEvent) => {
@@ -73,7 +82,8 @@ const SignForm = ({
   }
 
   const cannotPropose = !isOwner
-  const submitDisabled = !safeTx || !isSubmittable || disableSubmit || cannotPropose
+  const submitDisabled =
+    !safeTx || !isSubmittable || disableSubmit || cannotPropose || (needsRiskConfirmation && !isRiskConfirmed)
 
   return (
     <form onSubmit={handleSubmit}>
@@ -103,8 +113,14 @@ const SignForm = ({
           {/* Submit button */}
           <CheckWallet>
             {(isOk) => (
-              <Button variant="contained" type="submit" disabled={!isOk || submitDisabled}>
-                Sign
+              <Button
+                data-testid="sign-btn"
+                variant="contained"
+                type="submit"
+                disabled={!isOk || submitDisabled}
+                sx={{ minWidth: '82px' }}
+              >
+                {!isSubmittable ? <CircularProgress size={20} /> : 'Sign'}
               </Button>
             )}
           </CheckWallet>
@@ -114,4 +130,10 @@ const SignForm = ({
   )
 }
 
-export default SignForm
+const useTxSecurityContext = () => useContext(TxSecurityContext)
+
+export default madProps(SignForm, {
+  isOwner: useIsSafeOwner,
+  txActions: useTxActions,
+  txSecurity: useTxSecurityContext,
+})

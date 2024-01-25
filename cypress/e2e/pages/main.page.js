@@ -1,16 +1,31 @@
 import * as constants from '../../support/constants'
 
 const acceptSelection = 'Accept selection'
+const executeStr = 'Execute'
+export const modalDialogCloseBtn = '[data-testid="modal-dialog-close-btn"]'
 
+export function clickOnExecuteBtn() {
+  cy.get('button').contains(executeStr).click()
+}
 export function clickOnSideMenuItem(item) {
   cy.get('p').contains(item).click()
 }
 
-export function acceptCookies() {
+export function waitForHistoryCallToComplete() {
+  cy.intercept('GET', constants.transactionHistoryEndpoint).as('History')
+  cy.wait('@History')
+}
+
+export function waitForSafeListRequestToComplete() {
+  cy.intercept('GET', constants.safeListEndpoint).as('Safes')
+  cy.wait('@Safes')
+}
+
+export function acceptCookies(index = 0) {
   cy.wait(1000)
 
   cy.findAllByText('Got it!')
-    .should('have.length.at.least', 0)
+    .should('have.length.at.least', index)
     .each(($el) => $el.click())
 
   cy.get('button')
@@ -36,7 +51,11 @@ export function verifyHomeSafeUrl(safe) {
 
 export function checkTextsExistWithinElement(element, texts) {
   texts.forEach((text) => {
-    cy.wrap(element).findByText(text).should('exist')
+    cy.get(element)
+      .should('be.visible')
+      .within(() => {
+        cy.get('div').contains(text).should('be.visible')
+      })
   })
 }
 
@@ -81,6 +100,12 @@ export function verifyElementsExist(elements) {
   })
 }
 
+export function verifyElementsIsVisible(elements) {
+  elements.forEach((element) => {
+    cy.get(element).should('be.visible')
+  })
+}
+
 export function getTextToArray(selector, textArray) {
   cy.get(selector).each(($element) => {
     textArray.push($element.text())
@@ -93,6 +118,37 @@ export function extractDigitsToArray(selector, digitsArray) {
     const digits = text.match(/\d+\.\d+|\d+\b/g)
     if (digits) {
       digitsArray.push(...digits)
+    }
+  })
+}
+
+export function isItemInLocalstorage(key, expectedValue, maxAttempts = 10, delay = 100) {
+  return new Promise((resolve, reject) => {
+    let attempts = 0
+
+    const isItemInLocalstorage = () => {
+      attempts++
+      const storedValue = JSON.parse(window.localStorage.getItem(key))
+      const keyEqualsValue = JSON.stringify(expectedValue) === JSON.stringify(storedValue)
+      if (keyEqualsValue) {
+        resolve()
+      } else if (attempts < maxAttempts) {
+        setTimeout(isItemInLocalstorage, delay)
+      } else {
+        reject(error)
+      }
+    }
+    isItemInLocalstorage()
+  })
+}
+
+export function addToLocalStorage(key, jsonValue) {
+  return new Promise((resolve, reject) => {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(jsonValue))
+      resolve('Item added to local storage successfully')
+    } catch (error) {
+      reject('Error adding item to local storage: ' + error)
     }
   })
 }
