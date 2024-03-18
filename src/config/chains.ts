@@ -18,6 +18,8 @@ const chains = networks.reduce<Chains>((result, { shortName, chainId }) => {
 
 const ChainLogos = {
   [chains.eth]: '/images/networks/mainnet.svg',
+  [chains.shyft]: '/images/networks/shyft.png',
+  [chains.eth]: '/images/networks/mainnet.svg',
   [chains.bnb]: '/images/networks/bnb.svg',
   [chains.oeth]: '/images/networks/optimism.svg',
   [chains.gno]: '/images/networks/gno.png',
